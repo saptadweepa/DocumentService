@@ -5,6 +5,9 @@ import com.documentService.document.model.Author;
 import com.documentService.document.restcontroller.dto.DocumentDTO;
 import com.documentService.document.service.DocumentService;
 import com.documentService.document.service.AuthorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,12 +19,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/documents")
 @AllArgsConstructor
+@Tag(name = "Documents", description = "Operations pertaining to documents")
 public class DocumentRestController {
 
     private final DocumentService documentService;
     private final AuthorService authorService;
 
     @GetMapping
+    @Operation(summary = "Get all documents", description = "Retrieve a list of all documents")
     public ResponseEntity<List<DocumentDTO>> getAllDocuments() {
         List<DocumentDTO> documents = documentService.findAllDocuments()
                 .stream()
@@ -31,6 +36,9 @@ public class DocumentRestController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get document by ID", description = "Retrieve a document by its ID")
+    @ApiResponse(responseCode = "200", description = "Document found")
+    @ApiResponse(responseCode = "404", description = "Document not found")
     public ResponseEntity<DocumentDTO> getDocumentById(@PathVariable Long id) {
         Optional<Document> document = documentService.findDocumentById(id);
         return document.map(value -> ResponseEntity.ok(toDTO(value)))
@@ -38,6 +46,9 @@ public class DocumentRestController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a new document", description = "Add a new document to the system")
+    @ApiResponse(responseCode = "201", description = "Document created")
+    @ApiResponse(responseCode = "400", description = "Bad request if authors are not found")
     public ResponseEntity<DocumentDTO> createDocument(@Valid @RequestBody DocumentDTO documentDTO) {
         Set<Author> authors = getAuthorsByIds(documentDTO.getAuthorIds());
         if (authors.isEmpty()) {
@@ -52,6 +63,10 @@ public class DocumentRestController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update an existing document", description = "Update details of an existing document")
+    @ApiResponse(responseCode = "200", description = "Document updated")
+    @ApiResponse(responseCode = "400", description = "Bad request if authors are not found")
+    @ApiResponse(responseCode = "404", description = "Document not found")
     public ResponseEntity<DocumentDTO> updateDocument(@PathVariable Long id, @Valid @RequestBody DocumentDTO documentDTO) {
         Optional<Document> existingDocument = documentService.findDocumentById(id);
 
@@ -77,6 +92,8 @@ public class DocumentRestController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a document", description = "Remove a document from the system")
+    @ApiResponse(responseCode = "200", description = "Document deleted")
     public ResponseEntity<Void> deleteDocument(@PathVariable Long id) {
         documentService.deleteDocument(id);
         return ResponseEntity.ok().build();
