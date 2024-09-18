@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.Cascade;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class Document {
     @Column(columnDefinition = "TEXT")
     private String body;
 
-    @ManyToMany
+    @ManyToMany()
     @JoinTable(
             name = "document_author",
             joinColumns = @JoinColumn(name = "document_id"),
@@ -44,5 +45,9 @@ public class Document {
             throw new IllegalStateException("null author not allowed");
         }
         this.authors.add(author);
+    }
+
+    public void removeAuthor(Author author){
+        this.authors.remove(author);
     }
 }

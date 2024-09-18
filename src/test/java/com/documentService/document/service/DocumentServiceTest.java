@@ -2,14 +2,19 @@ package com.documentService.document.service;
 
 import com.documentService.document.model.Author;
 import com.documentService.document.model.Document;
+import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
 import com.documentService.document.repository.DocumentRepository;
 import jakarta.transaction.Transactional;
+import org.awaitility.Awaitility;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +31,9 @@ public class DocumentServiceTest {
     private DocumentService documentService;
 
     @Autowired
+    private AuthorService authorService;
+
+    @Autowired
     private AuthorRepository authorRepository;
 
     @Autowired
@@ -35,11 +43,21 @@ public class DocumentServiceTest {
 
     @BeforeEach
     public void setUp() {
-        documentRepository.deleteAll();
-        authorRepository.deleteAll();
+        authorRepository.findAll().forEach(
+                it -> authorService.deleteAuthor(it.getId())
+        );
+        documentRepository.findAll().forEach(
+                it -> documentService.deleteDocument(it.getId())
+        );
 
-        author = new Author(null, "firstname", "lastname");
-        authorRepository.save(author);
+
+        Author newAuthor = new Author();
+        newAuthor.setFirstName("firstname");
+        newAuthor.setLastName("lastname");
+        newAuthor.setUsername("username");
+        newAuthor.setPassword("password");
+        newAuthor.setRole(Role.ROLE_USER);
+        author = authorRepository.save(newAuthor);
     }
 
     @Test
@@ -103,7 +121,12 @@ public class DocumentServiceTest {
         Document newDocument = new Document(null, "Another Title", "Another Body",  setOf(author), new HashSet<>());
         Document savedDocument = documentService.saveDocument(newDocument);
 
-        Author additionalAuthor = new Author(null, "firstname", "lastname");
+        Author additionalAuthor = new Author();
+        additionalAuthor.setFirstName("firstname2");
+        additionalAuthor.setLastName("lastname2");
+        additionalAuthor.setUsername("username2");
+        additionalAuthor.setPassword("password2");
+        additionalAuthor.setRole(Role.ROLE_USER);
         authorRepository.save(additionalAuthor);
 
         savedDocument.addAuthor(additionalAuthor);
@@ -146,8 +169,12 @@ public class DocumentServiceTest {
 
             documents.add(documentService.saveDocument(document));
         }
-        Author additionalAuthor = new Author(null, "firstname", "lastname");
-        authorRepository.save(additionalAuthor);
+        Author additionalAuthor = new Author();
+        additionalAuthor.setFirstName("firstname2");
+        additionalAuthor.setLastName("lastname2");
+        additionalAuthor.setUsername("username2");
+        additionalAuthor.setPassword("password2");
+        additionalAuthor.setRole(Role.ROLE_USER);
         Document additionalDocument = new Document(
                 null, "testTitle2", "testBody2", setOf(additionalAuthor), null
         );
@@ -187,7 +214,7 @@ public class DocumentServiceTest {
 
     @Test
     public void findAllDocumentsForAuthorWithNullAuthorIdShouldThrowException() {
-        Author nullIdAuthor = new Author(null, "first", "last");
+        Author nullIdAuthor = new Author(null, "first", "last", "username", "password", Role.ROLE_USER, null);
         Exception exception = assertThrows(NullPointerException.class, () -> documentService.findAllDocumentForAuthor(nullIdAuthor));
         assertEquals("Author id must not be null", exception.getMessage());
     }

@@ -1,6 +1,7 @@
 package com.documentService.document.service;
 
 import com.documentService.document.model.Author;
+import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +34,10 @@ public class AuthorServiceTest {
     void shouldSaveAndFetchAuthor(){
 
         //GIVEN
-        Author author = new Author();
-        author.setFirstName("TestFirstName");
-        author.setLastName("TestLastName");
+        Author author = new Author(
+                null, "TestFirstName", "TestLastName", "TestUsername",
+                "TestPassword", Role.ROLE_USER, null
+        );
 
         //WHEN
         Author authorSaved = authorService.saveAuthor(author);
@@ -74,9 +76,10 @@ public class AuthorServiceTest {
     @Test
     void shouldBeAbleToDeleteAuthor(){
         //GIVEN
-        Author author = new Author();
-        author.setFirstName("TestFirstName");
-        author.setLastName("TestLastName");
+        Author author = new Author(
+                null, "TestFirstName", "TestLastName", "TestUsername",
+                "TestPassword", Role.ROLE_USER, null
+        );
         Author authorSaved = authorService.saveAuthor(author);
 
         //WHEN

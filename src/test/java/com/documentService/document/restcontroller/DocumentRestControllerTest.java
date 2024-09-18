@@ -3,6 +3,7 @@ package com.documentService.document.restcontroller;
 import com.documentService.document.TestSecurityConfig;
 import com.documentService.document.model.Author;
 import com.documentService.document.model.Document;
+import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
 import com.documentService.document.repository.DocumentRepository;
 import com.documentService.document.restcontroller.dto.DocumentDTO;
@@ -49,7 +50,8 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldCreateDocument() throws Exception {
-        Author author = new Author(null, "firstname", "lastname");
+        Author author = new Author(null, "firstname", "lastname",
+                "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
         DocumentDTO documentDTO = new DocumentDTO(null, "Test Title", "Test Body",
@@ -66,7 +68,7 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldGetDocumentById() throws Exception {
-        Author author = new Author(null, "firstname", "lastname");
+        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Test Title", "Test Body",
@@ -82,8 +84,10 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldGetAllDocuments() throws Exception {
-        Author author1 = new Author(null, "firstname", "lastname");
-        Author author2 = new Author(null, "firstname2", "lastname2");
+        Author author1 = new Author(null, "firstname", "lastname", "username",
+                "password", Role.ROLE_USER, null);
+        Author author2 = new Author(null, "firstname2", "lastname2", "username2",
+                "password", Role.ROLE_USER, null);
         authorRepository.saveAll(List.of(author1, author2));
 
         Document doc1 = new Document(null, "Title 1", "Body 1", Set.of(author1), Collections.emptySet());
@@ -98,7 +102,8 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldUpdateDocument() throws Exception {
-        Author author = new Author(null, "firstname", "lastname");
+        Author author = new Author(null, "firstname", "lastname",
+                "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Old Title", "Old Body",
@@ -118,7 +123,7 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldDeleteDocument() throws Exception {
-        Author author = new Author(null, "firstname", "lastname");
+        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Title", "Body",
@@ -177,7 +182,8 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldReturnBadRequestWhenAuthorNotFoundForUpdate() throws Exception {
-        Author author = new Author(null, "firstname", "lastname");
+        Author author = new Author(null, "firstname", "lastname",
+                "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Test Title", "Test Body",

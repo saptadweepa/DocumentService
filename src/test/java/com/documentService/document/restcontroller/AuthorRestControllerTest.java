@@ -2,8 +2,9 @@ package com.documentService.document.restcontroller;
 
 import com.documentService.document.TestSecurityConfig;
 import com.documentService.document.model.Author;
+import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
-import com.documentService.document.restcontroller.dto.AuthorDTO;
+import com.documentService.document.restcontroller.dto.AuthorWriteDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldCreateAuthor() throws Exception {
-        AuthorDTO authorDTO = new AuthorDTO(null, "firstname", "lastname");
+        AuthorWriteDTO authorDTO = new AuthorWriteDTO("firstname", "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -49,7 +50,7 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldGetAuthorById() throws Exception {
-        Author author = new Author(null, "firstname", "lastname");
+        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors/" + savedAuthor.getId()))
@@ -60,8 +61,8 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldGetAllAuthors() throws Exception {
-        Author author1 = new Author(null, "firstname", "lastname");
-        Author author2 = new Author(null, "firstname2", "lastname2");
+        Author author1 = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
+        Author author2 = new Author(null, "firstname2", "lastname2", "username2", "password2", Role.ROLE_USER, null);
         authorRepository.save(author1);
         authorRepository.save(author2);
 
@@ -73,10 +74,10 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldUpdateAuthor() throws Exception {
-        Author author = new Author(null, "firstname", "old lastname");
+        Author author = new Author(null, "firstname", "old lastname", "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
-        AuthorDTO updatedAuthorDTO = new AuthorDTO(savedAuthor.getId(), "firstname", "lastname Updated");
+        AuthorWriteDTO updatedAuthorDTO = new AuthorWriteDTO( "firstname", "lastname Updated", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/authors/" + savedAuthor.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,7 +88,7 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldDeleteAuthor() throws Exception {
-        Author author = new Author(null, "firstname", "lastname");
+        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
         Author savedAuthor = authorRepository.save(author);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/authors/" + savedAuthor.getId()))
@@ -99,7 +100,7 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldFailValidationWhenFirstNameIsNull() throws Exception {
-        AuthorDTO invalidAuthorDTO = new AuthorDTO(null, null, "lastname");
+        AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO(null, "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -110,7 +111,7 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldFailValidationWhenFirstNameIsTooShort() throws Exception {
-        AuthorDTO invalidAuthorDTO = new AuthorDTO(null, "", "lastname");
+        AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO("", "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +122,7 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldFailValidationWhenLastNameIsNull() throws Exception {
-        AuthorDTO invalidAuthorDTO = new AuthorDTO(null, "firstname", null);
+        AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO( "firstname", null, "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -132,7 +133,8 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldFailValidationWhenLastNameIsTooShort() throws Exception {
-        AuthorDTO invalidAuthorDTO = new AuthorDTO(null, "firstname", "");
+        AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO("firstname", "", "username", "password");
+
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,7 +145,7 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldFailValidationWhenBothNamesAreInvalid() throws Exception {
-        AuthorDTO invalidAuthorDTO = new AuthorDTO(null, "", "");
+        AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO("", "", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -157,7 +159,7 @@ public class AuthorRestControllerTest {
     public void shouldFailValidationWhenFirstNameIsTooLong() throws Exception {
         String longFirstName = "a".repeat(51);
 
-        AuthorDTO invalidAuthorDTO = new AuthorDTO(null, longFirstName, "lastname");
+        AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO(longFirstName, "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
                         .contentType(MediaType.APPLICATION_JSON)
