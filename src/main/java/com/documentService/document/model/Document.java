@@ -24,13 +24,9 @@ public class Document {
     @Column(columnDefinition = "TEXT")
     private String body;
 
-    @ManyToMany()
-    @JoinTable(
-            name = "document_author",
-            joinColumns = @JoinColumn(name = "document_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id")
-    )
-    private Set<Author> authors = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Author author;
 
     @ManyToMany
     @JoinTable(
@@ -40,14 +36,4 @@ public class Document {
     )
     private Set<Document> references;
 
-    public void addAuthor(Author author){
-        if (author == null){
-            throw new IllegalStateException("null author not allowed");
-        }
-        this.authors.add(author);
-    }
-
-    public void removeAuthor(Author author){
-        this.authors.remove(author);
-    }
 }

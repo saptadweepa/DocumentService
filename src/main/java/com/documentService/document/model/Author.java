@@ -30,19 +30,23 @@ public class Author implements UserDetails {
     private String username;
     private String password;
 
-    private Role role;
-
-    @ManyToMany(mappedBy = "authors")
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Document> documents = new HashSet<>();
 
-    public void addDocument(Document document){
+    public void addDocument(Document document) {
+        if (document == null) {
+            throw new IllegalStateException("null document not allowed");
+        }
         this.documents.add(document);
+        document.setAuthor(this);
     }
 
-    public void removeDocument(Document document){
+    public void removeDocument(Document document) {
         this.documents.remove(document);
+        document.setAuthor(null);
     }
 
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

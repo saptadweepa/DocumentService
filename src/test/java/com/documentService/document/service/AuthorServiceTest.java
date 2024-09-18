@@ -34,10 +34,13 @@ public class AuthorServiceTest {
     void shouldSaveAndFetchAuthor(){
 
         //GIVEN
-        Author author = new Author(
-                null, "TestFirstName", "TestLastName", "TestUsername",
-                "TestPassword", Role.ROLE_USER, null
-        );
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("TestFirstName");
+        author.setLastName("TestLastName");
+        author.setUsername("TestUsername");
+        author.setPassword("TestPassword");
+        author.setRole(Role.ROLE_USER);
 
         //WHEN
         Author authorSaved = authorService.saveAuthor(author);
@@ -76,10 +79,13 @@ public class AuthorServiceTest {
     @Test
     void shouldBeAbleToDeleteAuthor(){
         //GIVEN
-        Author author = new Author(
-                null, "TestFirstName", "TestLastName", "TestUsername",
-                "TestPassword", Role.ROLE_USER, null
-        );
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("TestFirstName");
+        author.setLastName("TestLastName");
+        author.setUsername("TestUsername");
+        author.setPassword("TestPassword");
+        author.setRole(Role.ROLE_USER);
         Author authorSaved = authorService.saveAuthor(author);
 
         //WHEN

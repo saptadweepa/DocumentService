@@ -50,12 +50,17 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldCreateDocument() throws Exception {
-        Author author = new Author(null, "firstname", "lastname",
-                "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
         DocumentDTO documentDTO = new DocumentDTO(null, "Test Title", "Test Body",
-                Set.of(savedAuthor.getId()), Collections.emptySet());
+                savedAuthor.getId(), Collections.emptySet());
 
         mockMvc.perform(post("/api/v1/documents")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -63,35 +68,53 @@ public class DocumentRestControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Test Title"))
                 .andExpect(jsonPath("$.body").value("Test Body"))
-                .andExpect(jsonPath("$.authorIds[0]").value(savedAuthor.getId()));
+                .andExpect(jsonPath("$.authorId").value(savedAuthor.getId()));
     }
 
     @Test
     public void shouldGetDocumentById() throws Exception {
-        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Test Title", "Test Body",
-                Set.of(savedAuthor), Collections.emptySet());
+                savedAuthor, Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         mockMvc.perform(get("/api/v1/documents/" + savedDocument.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Test Title"))
                 .andExpect(jsonPath("$.body").value("Test Body"))
-                .andExpect(jsonPath("$.authorIds[0]").value(savedAuthor.getId()));
+                .andExpect(jsonPath("$.authorId").value(savedAuthor.getId()));
     }
 
     @Test
     public void shouldGetAllDocuments() throws Exception {
-        Author author1 = new Author(null, "firstname", "lastname", "username",
-                "password", Role.ROLE_USER, null);
-        Author author2 = new Author(null, "firstname2", "lastname2", "username2",
-                "password", Role.ROLE_USER, null);
+        Author author1 = new Author();
+        author1.setId(null);
+        author1.setFirstName("firstname");
+        author1.setLastName("lastname");
+        author1.setUsername("username");
+        author1.setPassword("password");
+        author1.setRole(Role.ROLE_USER);
+
+        Author author2 = new Author();
+        author2.setId(null);
+        author2.setFirstName("firstname2");
+        author2.setLastName("lastname2");
+        author2.setUsername("username2");
+        author2.setPassword("password");
+        author2.setRole(Role.ROLE_USER);
+
         authorRepository.saveAll(List.of(author1, author2));
 
-        Document doc1 = new Document(null, "Title 1", "Body 1", Set.of(author1), Collections.emptySet());
-        Document doc2 = new Document(null, "Title 2", "Body 2", Set.of(author2), Collections.emptySet());
+        Document doc1 = new Document(null, "Title 1", "Body 1", author1, Collections.emptySet());
+        Document doc2 = new Document(null, "Title 2", "Body 2", author2, Collections.emptySet());
         documentRepository.saveAll(List.of(doc1, doc2));
 
         mockMvc.perform(get("/api/v1/documents"))
@@ -102,16 +125,21 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldUpdateDocument() throws Exception {
-        Author author = new Author(null, "firstname", "lastname",
-                "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Old Title", "Old Body",
-                Set.of(savedAuthor), Collections.emptySet());
+                savedAuthor, Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         DocumentDTO updatedDocumentDTO = new DocumentDTO(savedDocument.getId(), "Updated Title", "Updated Body",
-                Set.of(savedAuthor.getId()), Collections.emptySet());
+                savedAuthor.getId(), Collections.emptySet());
 
         mockMvc.perform(put("/api/v1/documents/" + savedDocument.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,11 +151,16 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldDeleteDocument() throws Exception {
-        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
-        Document document = new Document(null, "Title", "Body",
-                Set.of(savedAuthor), Collections.emptySet());
+        Document document = new Document(null, "Title", "Body", savedAuthor, Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         mockMvc.perform(delete("/api/v1/documents/" + savedDocument.getId()))
@@ -147,13 +180,12 @@ public class DocumentRestControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Title cannot be null"))
                 .andExpect(jsonPath("$.body").value("Body cannot be null"))
-                .andExpect(jsonPath("$.authorIds").value("Author IDs cannot be null"));
+                .andExpect(jsonPath("$.authorId").value("Author ID cannot be null"));
     }
 
     @Test
     public void shouldReturnBadRequestForInvalidAuthorId() throws Exception {
-        DocumentDTO documentDTO = new DocumentDTO(null, "Title", "Body",
-                Set.of(999L), Collections.emptySet());
+        DocumentDTO documentDTO = new DocumentDTO(null, "Title", "Body", 999L, Collections.emptySet());
 
         mockMvc.perform(post("/api/v1/documents")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -172,7 +204,7 @@ public class DocumentRestControllerTest {
     @Test
     public void shouldReturnBadRequestWhenAuthorNotFoundForCreate() throws Exception {
         DocumentDTO documentDTO = new DocumentDTO(null, "Test Title", "Test Body",
-                Set.of(999L), Collections.emptySet());
+                999L, Collections.emptySet());
 
         mockMvc.perform(post("/api/v1/documents")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -182,16 +214,21 @@ public class DocumentRestControllerTest {
 
     @Test
     public void shouldReturnBadRequestWhenAuthorNotFoundForUpdate() throws Exception {
-        Author author = new Author(null, "firstname", "lastname",
-                "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Test Title", "Test Body",
-                Set.of(savedAuthor), Collections.emptySet());
+                savedAuthor, Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         DocumentDTO documentDTO = new DocumentDTO(savedDocument.getId(), "Updated Title", "Updated Body",
-                Set.of(999L), Collections.emptySet());
+                999L, Collections.emptySet());
 
         mockMvc.perform(put("/api/v1/documents/" + savedDocument.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -203,8 +240,8 @@ public class DocumentRestControllerTest {
     public void shouldReturnNotFoundForUpdateWhenDocumentNotFound() throws Exception {
         long invalidId = 999L;
 
-        DocumentDTO documentDTO = new DocumentDTO(null, "Updated Title", "Updated Body",
-                Collections.emptySet(), Collections.emptySet());
+        DocumentDTO documentDTO = new DocumentDTO(999L, "Updated Title", "Updated Body",
+                1235L, Collections.emptySet());
 
         mockMvc.perform(put("/api/v1/documents/" + invalidId)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -6,22 +6,22 @@ import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
 import com.documentService.document.repository.DocumentRepository;
 import jakarta.transaction.Transactional;
-import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hibernate.internal.util.collections.CollectionHelper.setOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -34,22 +34,20 @@ public class DocumentServiceTest {
     private AuthorService authorService;
 
     @Autowired
-    private AuthorRepository authorRepository;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private DocumentRepository documentRepository;
+    private AuthorRepository authorRepository;
 
     private Author author;
 
-    @BeforeEach
-    public void setUp() {
-        authorRepository.findAll().forEach(
-                it -> authorService.deleteAuthor(it.getId())
-        );
-        documentRepository.findAll().forEach(
-                it -> documentService.deleteDocument(it.getId())
-        );
+    private static final Logger logger = LoggerFactory.getLogger(DocumentServiceTest.class);
 
+    @BeforeEach
+
+    public void setUp() {
+
+        jdbcTemplate.execute("TRUNCATE TABLE author CASCADE");
 
         Author newAuthor = new Author();
         newAuthor.setFirstName("firstname");
@@ -57,17 +55,22 @@ public class DocumentServiceTest {
         newAuthor.setUsername("username");
         newAuthor.setPassword("password");
         newAuthor.setRole(Role.ROLE_USER);
+
         author = authorRepository.save(newAuthor);
+
+
     }
 
     @Test
     @Transactional
     public void shouldBeAbleToFindAllDocuments() {
+
+
         //GIVEN
         Set<Document> documents = new HashSet<>();
         for (int i = 0; i < 10; i++) {
             Document document = new Document(
-                    null, "testTitle" + i, "testBody" + i, setOf(author), null
+                    null, "testTitle" + i, "testBody" + i, author, null
             );
 
             documentService.saveDocument(document);
@@ -88,7 +91,7 @@ public class DocumentServiceTest {
     public void shouldBeAbleToFindById() {
         //GIVEN
         Document document = new Document(
-                null, "testTitle", "testBody", setOf(author), null
+                null, "testTitle", "testBody", author, null
         );
         Long id = documentService.saveDocument(document).getId();
 
@@ -103,7 +106,7 @@ public class DocumentServiceTest {
     @Test
     public void shouldBeAbleToSave() {
         //GIVEN
-        Document newDocument = new Document(null, "Another Title", "Another Body",  setOf(author), new HashSet<>());
+        Document newDocument = new Document(null, "Another Title", "Another Body",  author, new HashSet<>());
 
         //WHEN
         Document savedDocument = documentService.saveDocument(newDocument);
@@ -115,38 +118,9 @@ public class DocumentServiceTest {
     }
 
     @Test
-    @Transactional
-    public void fetchedDocumentShouldShouldContainAllAuthors(){
-        //GIVEN
-        Document newDocument = new Document(null, "Another Title", "Another Body",  setOf(author), new HashSet<>());
-        Document savedDocument = documentService.saveDocument(newDocument);
-
-        Author additionalAuthor = new Author();
-        additionalAuthor.setFirstName("firstname2");
-        additionalAuthor.setLastName("lastname2");
-        additionalAuthor.setUsername("username2");
-        additionalAuthor.setPassword("password2");
-        additionalAuthor.setRole(Role.ROLE_USER);
-        authorRepository.save(additionalAuthor);
-
-        savedDocument.addAuthor(additionalAuthor);
-        documentService.saveDocument(savedDocument);
-
-        Set<Author> expectedAuthors = setOf(author, additionalAuthor);
-
-        //WHEN
-        Optional<Document> documentFromDb = documentService.findDocumentById(savedDocument.getId());
-
-        //THEN
-        assertThat(documentFromDb).isPresent();
-        assertThat(documentFromDb.get().getAuthors()).isEqualTo(expectedAuthors);
-        
-    }
-
-    @Test
     public void shouldBeAbleToDelete() {
         //GIVEN
-        Document newDocument = new Document(null, "Another Title", "Another Body",  setOf(author), new HashSet<>());
+        Document newDocument = new Document(null, "Another Title", "Another Body",  author, new HashSet<>());
         Document savedDocument = documentService.saveDocument(newDocument);
 
         //WHEN
@@ -164,7 +138,7 @@ public class DocumentServiceTest {
         Set<Document> documents = new HashSet<>();
         for (int i = 0; i < 10; i++) {
             Document document = new Document(
-                    null, "testTitle" + i, "testBody" + i, setOf(author), null
+                    null, "testTitle" + i, "testBody" + i, author, null
             );
 
             documents.add(documentService.saveDocument(document));
@@ -175,8 +149,10 @@ public class DocumentServiceTest {
         additionalAuthor.setUsername("username2");
         additionalAuthor.setPassword("password2");
         additionalAuthor.setRole(Role.ROLE_USER);
+
+        authorRepository.save(additionalAuthor);
         Document additionalDocument = new Document(
-                null, "testTitle2", "testBody2", setOf(additionalAuthor), null
+                null, "testTitle2", "testBody2", additionalAuthor, null
         );
         documentService.saveDocument(additionalDocument);
 
@@ -214,7 +190,13 @@ public class DocumentServiceTest {
 
     @Test
     public void findAllDocumentsForAuthorWithNullAuthorIdShouldThrowException() {
-        Author nullIdAuthor = new Author(null, "first", "last", "username", "password", Role.ROLE_USER, null);
+        Author nullIdAuthor = new Author();
+        nullIdAuthor.setId(null);
+        nullIdAuthor.setFirstName("first");
+        nullIdAuthor.setLastName("last");
+        nullIdAuthor.setUsername("username");
+        nullIdAuthor.setPassword("password");
+        nullIdAuthor.setRole(Role.ROLE_USER);
         Exception exception = assertThrows(NullPointerException.class, () -> documentService.findAllDocumentForAuthor(nullIdAuthor));
         assertEquals("Author id must not be null", exception.getMessage());
     }

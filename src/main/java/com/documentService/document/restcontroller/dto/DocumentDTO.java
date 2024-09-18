@@ -22,8 +22,8 @@ public class DocumentDTO {
     @NotNull(message = "Body cannot be null")
     private String body;
 
-    @NotNull(message = "Author IDs cannot be null")
-    private Set<Long> authorIds;
+    @NotNull(message = "Author ID cannot be null")
+    private Long authorId;
 
     private Set<Long> referenceIds;
 }

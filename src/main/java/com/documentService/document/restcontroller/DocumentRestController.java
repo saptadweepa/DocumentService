@@ -50,14 +50,23 @@ public class DocumentRestController {
     @ApiResponse(responseCode = "201", description = "Document created")
     @ApiResponse(responseCode = "400", description = "Bad request if authors are not found")
     public ResponseEntity<DocumentDTO> createDocument(@Valid @RequestBody DocumentDTO documentDTO) {
-        Set<Author> authors = getAuthorsByIds(documentDTO.getAuthorIds());
-        if (authors.isEmpty()) {
+        Optional<Author> authorOpt = authorService.findAuthorById(documentDTO.getAuthorId());
+
+        if (authorOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
 
+        Author author = authorOpt.get();
+
         Set<Document> references = getDocumentsByIds(documentDTO.getReferenceIds());
 
-        Document document = new Document(null, documentDTO.getTitle(), documentDTO.getBody(), authors, references);
+        Document document = new Document();
+        document.setId(null);
+        document.setTitle(documentDTO.getTitle());
+        document.setBody(documentDTO.getBody());
+        document.setAuthor(author);
+        document.setReferences(references);
+
         Document savedDocument = documentService.saveDocument(document);
         return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(savedDocument));
     }
@@ -67,7 +76,7 @@ public class DocumentRestController {
     @ApiResponse(responseCode = "200", description = "Document updated")
     @ApiResponse(responseCode = "400", description = "Bad request if authors are not found")
     @ApiResponse(responseCode = "404", description = "Document not found")
-    public ResponseEntity<DocumentDTO> updateDocument(@PathVariable Long id, @Valid @RequestBody DocumentDTO documentDTO) {
+    public ResponseEntity<DocumentDTO> updateDocument(@PathVariable("id") Long id, @Valid @RequestBody DocumentDTO documentDTO) {
         Optional<Document> existingDocument = documentService.findDocumentById(id);
 
         if (existingDocument.isEmpty()){
@@ -75,8 +84,8 @@ public class DocumentRestController {
         }
 
         Document document = existingDocument.get();
-        Set<Author> authors = getAuthorsByIds(documentDTO.getAuthorIds());
-        if (authors.isEmpty()) {
+        Optional<Author> author = authorService.findAuthorById(documentDTO.getAuthorId());
+        if (author.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
 
@@ -84,7 +93,7 @@ public class DocumentRestController {
 
         document.setTitle(documentDTO.getTitle());
         document.setBody(documentDTO.getBody());
-        document.setAuthors(authors);
+        document.setAuthor(author.get());
         document.setReferences(references);
 
         Document updatedDocument = documentService.saveDocument(document);
@@ -105,16 +114,9 @@ public class DocumentRestController {
         dto.setId(document.getId());
         dto.setTitle(document.getTitle());
         dto.setBody(document.getBody());
-        dto.setAuthorIds(document.getAuthors().stream().map(Author::getId).collect(Collectors.toSet()));
+        dto.setAuthorId(document.getAuthor().getId());
         dto.setReferenceIds(document.getReferences().stream().map(Document::getId).collect(Collectors.toSet()));
         return dto;
-    }
-
-    private Set<Author> getAuthorsByIds(Set<Long> authorIds) {
-        return authorIds.stream()
-                .map(authorId -> authorService.findAuthorById(authorId).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
     }
 
     private Set<Document> getDocumentsByIds(Set<Long> documentIds) {

@@ -50,7 +50,13 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldGetAuthorById() throws Exception {
-        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors/" + savedAuthor.getId()))
@@ -61,8 +67,22 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldGetAllAuthors() throws Exception {
-        Author author1 = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
-        Author author2 = new Author(null, "firstname2", "lastname2", "username2", "password2", Role.ROLE_USER, null);
+        Author author1 = new Author();
+        author1.setId(null);
+        author1.setFirstName("firstname");
+        author1.setLastName("lastname");
+        author1.setUsername("username");
+        author1.setPassword("password");
+        author1.setRole(Role.ROLE_USER);
+
+        Author author2 = new Author();
+        author2.setId(null);
+        author2.setFirstName("firstname2");
+        author2.setLastName("lastname2");
+        author2.setUsername("username2");
+        author2.setPassword("password2");
+        author2.setRole(Role.ROLE_USER);
+
         authorRepository.save(author1);
         authorRepository.save(author2);
 
@@ -74,7 +94,13 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldUpdateAuthor() throws Exception {
-        Author author = new Author(null, "firstname", "old lastname", "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("old lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
         AuthorWriteDTO updatedAuthorDTO = new AuthorWriteDTO( "firstname", "lastname Updated", "username", "password");
@@ -88,7 +114,13 @@ public class AuthorRestControllerTest {
 
     @Test
     public void shouldDeleteAuthor() throws Exception {
-        Author author = new Author(null, "firstname", "lastname", "username", "password", Role.ROLE_USER, null);
+        Author author = new Author();
+        author.setId(null);
+        author.setFirstName("firstname");
+        author.setLastName("lastname");
+        author.setUsername("username");
+        author.setPassword("password");
+        author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/authors/" + savedAuthor.getId()))

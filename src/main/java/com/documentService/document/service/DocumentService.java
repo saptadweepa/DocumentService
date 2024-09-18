@@ -32,13 +32,10 @@ public class DocumentService {
 
     public Document saveDocument(Document document) {
         Objects.requireNonNull(document, "saved document must not be null");
-        document.getAuthors().forEach(author -> {
-                    if (author.getId() == null) {
-                        throw new IllegalStateException("Author must exist before creating/updating a new document");
-                    }
 
-                }
-        );
+        if (document.getAuthor() == null || document.getAuthor().getId() == null){
+            throw new IllegalStateException("Author must exist before creating/updating a new document");
+        }
 
         return documentRepository.save(document);
     }
@@ -54,7 +51,7 @@ public class DocumentService {
         Objects.requireNonNull(author, "Author must not be null");
         Objects.requireNonNull(author.getId(), "Author id must not be null");
 
-        return documentRepository.findAllByAuthorId(author.getId());
+        return documentRepository.findAllByAuthor(author);
 
     }
 }

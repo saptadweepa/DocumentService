@@ -53,8 +53,13 @@ public class AuthorRestController {
     @PostMapping
     public ResponseEntity<AuthorReadDTO> createAuthor(@RequestBody @Valid AuthorWriteDTO authorDTO) {
 
-        Author newAuthor = new Author(null, authorDTO.getFirstName(), authorDTO.getLastName(),
-                authorDTO.getUsername(), authorDTO.getPassword(), Role.ROLE_USER, null);
+        Author newAuthor = new Author();
+        newAuthor.setId(null);
+        newAuthor.setFirstName(authorDTO.getFirstName());
+        newAuthor.setLastName(authorDTO.getLastName());
+        newAuthor.setUsername(authorDTO.getUsername());
+        newAuthor.setPassword(authorDTO.getPassword());
+        newAuthor.setRole(Role.ROLE_USER);
 
         Author savedAuthor = authorService.saveAuthor(newAuthor);
 
