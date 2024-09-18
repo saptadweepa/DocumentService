@@ -1,6 +1,5 @@
 package com.documentService.document.restcontroller;
 
-import com.documentService.document.TestSecurityConfig;
 import com.documentService.document.model.Author;
 import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
@@ -12,14 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+
 @SpringBootTest
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = {TestSecurityConfig.class})
 public class AuthorRestControllerTest {
 
     @Autowired
@@ -41,6 +40,7 @@ public class AuthorRestControllerTest {
         AuthorWriteDTO authorDTO = new AuthorWriteDTO("firstname", "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(authorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
@@ -59,7 +59,9 @@ public class AuthorRestControllerTest {
         author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors/" + savedAuthor.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors/" + savedAuthor.getId())
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
+                )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("firstname"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("lastname"));
@@ -86,7 +88,9 @@ public class AuthorRestControllerTest {
         authorRepository.save(author1);
         authorRepository.save(author2);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
+                )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].firstName").value("firstname"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].firstName").value("firstname2"));
@@ -106,6 +110,7 @@ public class AuthorRestControllerTest {
         AuthorWriteDTO updatedAuthorDTO = new AuthorWriteDTO( "firstname", "lastname Updated", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/authors/" + savedAuthor.getId())
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedAuthorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -123,10 +128,14 @@ public class AuthorRestControllerTest {
         author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/authors/" + savedAuthor.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/authors/" + savedAuthor.getId())
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
+                )
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors/" + savedAuthor.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/authors/" + savedAuthor.getId())
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
+                )
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
@@ -135,6 +144,7 @@ public class AuthorRestControllerTest {
         AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO(null, "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidAuthorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -146,6 +156,7 @@ public class AuthorRestControllerTest {
         AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO("", "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidAuthorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -157,6 +168,7 @@ public class AuthorRestControllerTest {
         AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO( "firstname", null, "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidAuthorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -169,6 +181,7 @@ public class AuthorRestControllerTest {
 
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidAuthorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -180,6 +193,7 @@ public class AuthorRestControllerTest {
         AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO("", "", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidAuthorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
@@ -194,6 +208,7 @@ public class AuthorRestControllerTest {
         AuthorWriteDTO invalidAuthorDTO = new AuthorWriteDTO(longFirstName, "lastname", "username", "password");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/authors")
+                        .with(user("testadmin").password("testadminpassword").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidAuthorDTO)))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())

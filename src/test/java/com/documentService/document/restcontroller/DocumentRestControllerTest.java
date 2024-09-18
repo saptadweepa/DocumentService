@@ -1,6 +1,5 @@
 package com.documentService.document.restcontroller;
 
-import com.documentService.document.TestSecurityConfig;
 import com.documentService.document.model.Author;
 import com.documentService.document.model.Document;
 import com.documentService.document.model.Role;
@@ -14,20 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = {TestSecurityConfig.class})
 public class DocumentRestControllerTest {
 
     @Autowired
@@ -63,6 +60,7 @@ public class DocumentRestControllerTest {
                 savedAuthor.getId(), Collections.emptySet());
 
         mockMvc.perform(post("/api/v1/documents")
+                        .with(user("testuser").password("testuserpass").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentDTO)))
                 .andExpect(status().isCreated())
@@ -86,7 +84,9 @@ public class DocumentRestControllerTest {
                 savedAuthor, Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
-        mockMvc.perform(get("/api/v1/documents/" + savedDocument.getId()))
+        mockMvc.perform(get("/api/v1/documents/" + savedDocument.getId())
+                        .with(user("testuser").password("testuserpass").roles("USER"))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Test Title"))
                 .andExpect(jsonPath("$.body").value("Test Body"))
@@ -117,7 +117,9 @@ public class DocumentRestControllerTest {
         Document doc2 = new Document(null, "Title 2", "Body 2", author2, Collections.emptySet());
         documentRepository.saveAll(List.of(doc1, doc2));
 
-        mockMvc.perform(get("/api/v1/documents"))
+        mockMvc.perform(get("/api/v1/documents")
+                        .with(user("testuser").password("testuserpass").roles("USER"))
+                )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Title 1"))
                 .andExpect(jsonPath("$[1].title").value("Title 2"));
@@ -142,6 +144,7 @@ public class DocumentRestControllerTest {
                 savedAuthor.getId(), Collections.emptySet());
 
         mockMvc.perform(put("/api/v1/documents/" + savedDocument.getId())
+                        .with(user("testuser").password("testuserpass").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedDocumentDTO)))
                 .andExpect(status().isOk())
@@ -163,10 +166,12 @@ public class DocumentRestControllerTest {
         Document document = new Document(null, "Title", "Body", savedAuthor, Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
-        mockMvc.perform(delete("/api/v1/documents/" + savedDocument.getId()))
+        mockMvc.perform(delete("/api/v1/documents/" + savedDocument.getId())
+                        .with(user("testuser").password("testuserpass").roles("USER")))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/v1/documents/" + savedDocument.getId()))
+        mockMvc.perform(get("/api/v1/documents/" + savedDocument.getId())
+                        .with(user("testuser").password("testuserpass").roles("USER")))
                 .andExpect(status().isNotFound());
     }
 
@@ -175,6 +180,7 @@ public class DocumentRestControllerTest {
         DocumentDTO invalidDocumentDTO = new DocumentDTO(null, null, null, null, Collections.emptySet());
 
         mockMvc.perform(post("/api/v1/documents")
+                        .with(user("testuser").password("testuserpass").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDocumentDTO)))
                 .andExpect(status().isBadRequest())
@@ -188,6 +194,7 @@ public class DocumentRestControllerTest {
         DocumentDTO documentDTO = new DocumentDTO(null, "Title", "Body", 999L, Collections.emptySet());
 
         mockMvc.perform(post("/api/v1/documents")
+                        .with(user("testuser").password("testuserpass").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentDTO)))
                 .andExpect(status().isBadRequest());
@@ -197,7 +204,9 @@ public class DocumentRestControllerTest {
     public void shouldReturnNotFoundForDocumentById() throws Exception {
         long invalidId = 999L;
 
-        mockMvc.perform(get("/api/v1/documents/" + invalidId))
+        mockMvc.perform(get("/api/v1/documents/" + invalidId)
+                        .with(user("testuser").password("testuserpass").roles("USER"))
+                )
                 .andExpect(status().isNotFound());
     }
 
@@ -207,6 +216,7 @@ public class DocumentRestControllerTest {
                 999L, Collections.emptySet());
 
         mockMvc.perform(post("/api/v1/documents")
+                        .with(user("testuser").password("testuserpass").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentDTO)))
                 .andExpect(status().isBadRequest());
@@ -231,6 +241,7 @@ public class DocumentRestControllerTest {
                 999L, Collections.emptySet());
 
         mockMvc.perform(put("/api/v1/documents/" + savedDocument.getId())
+                        .with(user("testuser").password("testuserpass").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentDTO)))
                 .andExpect(status().isBadRequest());
@@ -244,6 +255,7 @@ public class DocumentRestControllerTest {
                 1235L, Collections.emptySet());
 
         mockMvc.perform(put("/api/v1/documents/" + invalidId)
+                        .with(user("testuser").password("testuserpass").roles("USER"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(documentDTO)))
                 .andExpect(status().isNotFound());
