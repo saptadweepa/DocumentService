@@ -37,11 +37,23 @@ public class DocumentService {
             throw new IllegalStateException("Author must exist before creating/updating a new document");
         }
 
-        return documentRepository.save(document);
+        Document savedDoc = documentRepository.save(document);
+
+        Author author = authorOpt.get();
+        author.addDocument(savedDoc);
+        authorRepository.save(author);
+
+        return savedDoc;
     }
 
     public void deleteDocument(Long id) {
         Objects.requireNonNull(id, "Document ID must not be null");
+
+        Document doc = documentRepository.findById(id).orElseThrow();
+        Author author = authorRepository.findById(doc.getAuthorId()).orElseThrow();
+
+        author.removeDocument(doc);
+        authorRepository.save(author);
 
         documentRepository.deleteById(id);
     }

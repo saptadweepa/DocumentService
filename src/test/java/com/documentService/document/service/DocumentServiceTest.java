@@ -4,6 +4,7 @@ import com.documentService.document.model.Author;
 import com.documentService.document.model.Document;
 import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
+import com.documentService.document.repository.DocumentRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,9 @@ public class DocumentServiceTest {
     private DocumentService documentService;
 
     @Autowired
+    private DocumentRepository documentRepository;
+
+    @Autowired
     private AuthorService authorService;
 
     @Autowired
@@ -46,6 +50,7 @@ public class DocumentServiceTest {
 
         jdbcTemplate.execute("TRUNCATE TABLE author CASCADE");
 
+
         Author newAuthor = new Author();
         newAuthor.setFirstName("firstname");
         newAuthor.setLastName("lastname");
@@ -61,7 +66,6 @@ public class DocumentServiceTest {
     @Test
     @Transactional
     public void shouldBeAbleToFindAllDocuments() {
-
 
         //GIVEN
         Set<Document> documents = new HashSet<>();
@@ -159,6 +163,34 @@ public class DocumentServiceTest {
         //THEN
         assertThat(new HashSet<>(documentsForAuthor))
                 .isEqualTo(documents);
+    }
+
+    @Test
+    public void shouldUpdateDocumentIdListInAuthorOnNewDocumentSave(){
+        //GIVEN
+        Document newDocument = new Document(null, "Another Title", "Another Body",  author.getId(), new HashSet<>());
+
+        //WHEN
+        Document savedDocument = documentService.saveDocument(newDocument);
+
+        //THEN
+        Author authorInDb = authorRepository.findById(author.getId()).orElseThrow();
+        assertThat(authorInDb.getDocumentIds())
+                .contains(savedDocument.getId());
+    }
+
+    @Test
+    public void shouldUpdateDocumentIdListInAuthorOnDocumentDelete(){
+        //GIVEN
+        Document newDocument = new Document(null, "Another Title", "Another Body",  author.getId(), new HashSet<>());
+        Document savedDocument = documentService.saveDocument(newDocument);
+
+        //WHEN
+        documentService.deleteDocument(savedDocument.getId());
+
+        //THEN
+        Author authorInDb = authorRepository.findById(author.getId()).orElseThrow();
+        assertThat(authorInDb.getDocumentIds()).isEmpty();
     }
 
     @Test
