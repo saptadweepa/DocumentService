@@ -17,6 +17,7 @@ This application provides document and author management capabilities through RE
 
 ### Accessing REST Endpoints
 The REST endpoints are available via [Swagger UI](http://localhost:8080/swagger-ui.html).
+The swagger ui will ask for username and password, the user details provided above can be used.
 
 ### Kafka Integration
 - All author and document lifecycle updates are published to Kafka.
@@ -40,3 +41,4 @@ The REST endpoints are available via [Swagger UI](http://localhost:8080/swagger-
 
 ## Testing
 The application features are tested end-to-end with comprehensive integration tests.
+test can be run using `./gradlew.bat test` following `docker-compose up`
