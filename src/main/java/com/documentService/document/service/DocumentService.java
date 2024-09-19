@@ -1,5 +1,8 @@
 package com.documentService.document.service;
 
+import com.documentService.document.KafkaEventPublisher;
+import com.documentService.document.messaging.events.ServiceUpdateEvent;
+import com.documentService.document.messaging.events.ServiceUpdateType;
 import com.documentService.document.model.Author;
 import com.documentService.document.model.Document;
 import com.documentService.document.repository.AuthorRepository;
@@ -19,6 +22,7 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final AuthorRepository authorRepository;
+    private final KafkaEventPublisher publisher;
 
     public List<Document> findAllDocuments() {
         return documentRepository.findAll();
@@ -33,6 +37,8 @@ public class DocumentService {
         Objects.requireNonNull(document, "saved document must not be null");
         Optional<Author> authorOpt = authorRepository.findById(document.getAuthorId());
 
+        boolean isNewDoc = document.getId() == null;
+
         if (authorOpt.isEmpty()){
             throw new IllegalStateException("Author must exist before creating/updating a new document");
         }
@@ -42,6 +48,11 @@ public class DocumentService {
         Author author = authorOpt.get();
         author.addDocument(savedDoc);
         authorRepository.save(author);
+
+        ServiceUpdateEvent event = new ServiceUpdateEvent();
+        event.setUpdateType(isNewDoc ? ServiceUpdateType.DOCUMENT_CREATED : ServiceUpdateType.DOCUMENT_UPDATED);
+        event.setDocumentId(savedDoc.getId());
+        publisher.publish(event);
 
         return savedDoc;
     }
@@ -56,6 +67,11 @@ public class DocumentService {
         authorRepository.save(author);
 
         documentRepository.deleteById(id);
+
+        ServiceUpdateEvent event = new ServiceUpdateEvent();
+        event.setUpdateType(ServiceUpdateType.DOCUMENT_DELETED);
+        event.setDocumentId(id);
+        publisher.publish(event);
     }
 
     public List<Document> findAllDocumentForAuthor(Author author) {

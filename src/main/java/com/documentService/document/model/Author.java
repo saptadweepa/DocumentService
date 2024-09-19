@@ -46,6 +46,7 @@ public class Author implements UserDetails {
         this.documentIds.remove(document.getId());
     }
 
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @Override
