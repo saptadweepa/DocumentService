@@ -8,6 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/**
+ * This service consumes kafka events as string, and using this class, the kafka events are converted to
+ * respective service events
+ */
 @Service
 @AllArgsConstructor
 public class MessageDeserializer {

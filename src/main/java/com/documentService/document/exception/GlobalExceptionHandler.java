@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is used for RestController Exception handler. It catches Validation error
+ * happened during rest api request and returns a meaningful message
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 

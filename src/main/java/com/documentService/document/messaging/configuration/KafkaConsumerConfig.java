@@ -16,7 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
+/**
+ * This class configures Kafka consumer, which will be used by spring kafka listener
+ */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {

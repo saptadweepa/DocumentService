@@ -11,6 +11,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+/**
+ * Since the service is secured, this class creates two demo users which can be used for
+ * accessing rest apis.
+ * Two kind of users are create
+ * 1. Admin -> has all access
+ * 2. User -> has limited access
+ */
 @Configuration
 public class DataInitializer {
 

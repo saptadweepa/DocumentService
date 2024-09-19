@@ -1,6 +1,6 @@
 package com.documentService.document.restcontroller;
 
-import com.documentService.document.KafkaEventPublisher;
+import com.documentService.document.messaging.KafkaEventPublisher;
 import com.documentService.document.messaging.events.CreateAuthorEvent;
 import com.documentService.document.messaging.events.CreateDocumentEvent;
 import com.documentService.document.messaging.events.DeleteAuthorEvent;

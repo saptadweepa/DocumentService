@@ -1,6 +1,6 @@
 package com.documentService.document.service;
 
-import com.documentService.document.KafkaEventPublisher;
+import com.documentService.document.messaging.KafkaEventPublisher;
 import com.documentService.document.messaging.events.ServiceUpdateEvent;
 import com.documentService.document.messaging.events.ServiceUpdateType;
 import com.documentService.document.model.Author;
@@ -9,6 +9,8 @@ import com.documentService.document.repository.AuthorRepository;
 import com.documentService.document.repository.DocumentRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +25,8 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final AuthorRepository authorRepository;
     private final KafkaEventPublisher publisher;
+
+    private static final Logger logger = LoggerFactory.getLogger(DocumentService.class);
 
     public List<Document> findAllDocuments() {
         return documentRepository.findAll();
@@ -52,6 +56,9 @@ public class DocumentService {
         ServiceUpdateEvent event = new ServiceUpdateEvent();
         event.setUpdateType(isNewDoc ? ServiceUpdateType.DOCUMENT_CREATED : ServiceUpdateType.DOCUMENT_UPDATED);
         event.setDocumentId(savedDoc.getId());
+
+        logger.info("Created document {}", savedDoc.getId());
+
         publisher.publish(event);
 
         return savedDoc;
@@ -72,6 +79,8 @@ public class DocumentService {
         event.setUpdateType(ServiceUpdateType.DOCUMENT_DELETED);
         event.setDocumentId(id);
         publisher.publish(event);
+
+        logger.info("Deleted doc {}", id);
     }
 
     public List<Document> findAllDocumentForAuthor(Author author) {

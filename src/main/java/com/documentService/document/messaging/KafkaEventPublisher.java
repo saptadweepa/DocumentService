@@ -1,4 +1,4 @@
-package com.documentService.document;
+package com.documentService.document.messaging;
 
 import com.documentService.document.messaging.events.AbstractDocumentServiceEvent;
 import com.documentService.document.messaging.events.DocumentServiceEventType;
@@ -9,6 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * This class is used to publish events to kafka topics.
+ * based on event, the class determines which topic to send the events
+ */
 @Service
 @AllArgsConstructor
 public class KafkaEventPublisher {
@@ -63,12 +67,5 @@ public class KafkaEventPublisher {
         return event.getEventType() == DocumentServiceEventType.SERVICE_UPDATE_EVENT;
     }
 
-    private String convertEventToJson(Object event) {
-        try {
-            return objectMapper.writeValueAsString(event);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to convert event to JSON", e);
-        }
-    }
 
 }

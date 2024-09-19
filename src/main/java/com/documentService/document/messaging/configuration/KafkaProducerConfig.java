@@ -12,6 +12,9 @@ import org.springframework.kafka.core.ProducerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is used to configure Kafka producer, which will be used across service to publish events
+ */
 @Configuration
 public class KafkaProducerConfig {
 

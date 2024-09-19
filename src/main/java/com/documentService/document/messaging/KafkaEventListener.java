@@ -15,9 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-import static com.documentService.document.KafkaEventPublisher.*;
+import static com.documentService.document.messaging.KafkaEventPublisher.*;
 import static com.documentService.document.messaging.configuration.KafkaConsumerConfig.GROUP_ID;
 
+/**
+ * This class polls various kafka topics and processes messages received on those topics
+ */
 @Service
 @AllArgsConstructor
 public class KafkaEventListener {

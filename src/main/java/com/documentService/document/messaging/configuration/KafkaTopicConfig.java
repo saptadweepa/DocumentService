@@ -3,6 +3,7 @@ package com.documentService.document.messaging.configuration;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,15 +11,21 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Collections;
 import java.util.Properties;
 
-import static com.documentService.document.KafkaEventPublisher.*;
+import static com.documentService.document.messaging.KafkaEventPublisher.*;
 
+/**
+ * This class is used to create Topics on Kafka.
+ */
 @Configuration
 public class KafkaTopicConfig {
+
+    @Value("${kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
     @Bean
     public AdminClient kafkaAdminClient() {
         Properties properties = new Properties();
-        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092"); // Replace with your Kafka broker address
+        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         return AdminClient.create(properties);
     }
 
