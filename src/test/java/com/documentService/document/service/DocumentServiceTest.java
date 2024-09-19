@@ -4,17 +4,14 @@ import com.documentService.document.model.Author;
 import com.documentService.document.model.Document;
 import com.documentService.document.model.Role;
 import com.documentService.document.repository.AuthorRepository;
-import com.documentService.document.repository.DocumentRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.util.HashSet;
 import java.util.List;
@@ -70,7 +67,7 @@ public class DocumentServiceTest {
         Set<Document> documents = new HashSet<>();
         for (int i = 0; i < 10; i++) {
             Document document = new Document(
-                    null, "testTitle" + i, "testBody" + i, author, null
+                    null, "testTitle" + i, "testBody" + i, author.getId(), null
             );
 
             documentService.saveDocument(document);
@@ -91,7 +88,7 @@ public class DocumentServiceTest {
     public void shouldBeAbleToFindById() {
         //GIVEN
         Document document = new Document(
-                null, "testTitle", "testBody", author, null
+                null, "testTitle", "testBody", author.getId(), null
         );
         Long id = documentService.saveDocument(document).getId();
 
@@ -106,7 +103,7 @@ public class DocumentServiceTest {
     @Test
     public void shouldBeAbleToSave() {
         //GIVEN
-        Document newDocument = new Document(null, "Another Title", "Another Body",  author, new HashSet<>());
+        Document newDocument = new Document(null, "Another Title", "Another Body",  author.getId(), new HashSet<>());
 
         //WHEN
         Document savedDocument = documentService.saveDocument(newDocument);
@@ -120,7 +117,7 @@ public class DocumentServiceTest {
     @Test
     public void shouldBeAbleToDelete() {
         //GIVEN
-        Document newDocument = new Document(null, "Another Title", "Another Body",  author, new HashSet<>());
+        Document newDocument = new Document(null, "Another Title", "Another Body",  author.getId(), new HashSet<>());
         Document savedDocument = documentService.saveDocument(newDocument);
 
         //WHEN
@@ -138,7 +135,7 @@ public class DocumentServiceTest {
         Set<Document> documents = new HashSet<>();
         for (int i = 0; i < 10; i++) {
             Document document = new Document(
-                    null, "testTitle" + i, "testBody" + i, author, null
+                    null, "testTitle" + i, "testBody" + i, author.getId(), null
             );
 
             documents.add(documentService.saveDocument(document));
@@ -152,7 +149,7 @@ public class DocumentServiceTest {
 
         authorRepository.save(additionalAuthor);
         Document additionalDocument = new Document(
-                null, "testTitle2", "testBody2", additionalAuthor, null
+                null, "testTitle2", "testBody2", additionalAuthor.getId(), null
         );
         documentService.saveDocument(additionalDocument);
 

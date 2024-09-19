@@ -61,8 +61,11 @@ public class AuthorServiceTest {
         Set<Author> authors = new HashSet<>();
         for(int i= 0;i<10;i++){
             Author author = new Author();
+            author.setUsername("username" + i);
+            author.setPassword("password" + i);
             author.setFirstName("First" + i);
             author.setLastName("Last" + i);
+            author.setRole(Role.ROLE_USER);
             authors.add(author);
         }
         authorRepository.saveAll(authors);

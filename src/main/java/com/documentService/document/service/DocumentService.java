@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -32,8 +31,9 @@ public class DocumentService {
 
     public Document saveDocument(Document document) {
         Objects.requireNonNull(document, "saved document must not be null");
+        Optional<Author> authorOpt = authorRepository.findById(document.getAuthorId());
 
-        if (document.getAuthor() == null || document.getAuthor().getId() == null){
+        if (authorOpt.isEmpty()){
             throw new IllegalStateException("Author must exist before creating/updating a new document");
         }
 
@@ -51,7 +51,7 @@ public class DocumentService {
         Objects.requireNonNull(author, "Author must not be null");
         Objects.requireNonNull(author.getId(), "Author id must not be null");
 
-        return documentRepository.findAllByAuthor(author);
+        return documentRepository.findAllByAuthorId(author.getId());
 
     }
 }

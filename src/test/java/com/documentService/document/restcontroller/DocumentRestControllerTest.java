@@ -81,7 +81,7 @@ public class DocumentRestControllerTest {
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Test Title", "Test Body",
-                savedAuthor, Collections.emptySet());
+                savedAuthor.getId(), Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         mockMvc.perform(get("/api/v1/documents/" + savedDocument.getId())
@@ -113,8 +113,8 @@ public class DocumentRestControllerTest {
 
         authorRepository.saveAll(List.of(author1, author2));
 
-        Document doc1 = new Document(null, "Title 1", "Body 1", author1, Collections.emptySet());
-        Document doc2 = new Document(null, "Title 2", "Body 2", author2, Collections.emptySet());
+        Document doc1 = new Document(null, "Title 1", "Body 1", author1.getId(), Collections.emptySet());
+        Document doc2 = new Document(null, "Title 2", "Body 2", author2.getId(), Collections.emptySet());
         documentRepository.saveAll(List.of(doc1, doc2));
 
         mockMvc.perform(get("/api/v1/documents")
@@ -137,7 +137,7 @@ public class DocumentRestControllerTest {
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Old Title", "Old Body",
-                savedAuthor, Collections.emptySet());
+                savedAuthor.getId(), Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         DocumentDTO updatedDocumentDTO = new DocumentDTO(savedDocument.getId(), "Updated Title", "Updated Body",
@@ -163,7 +163,7 @@ public class DocumentRestControllerTest {
         author.setRole(Role.ROLE_USER);
         Author savedAuthor = authorRepository.save(author);
 
-        Document document = new Document(null, "Title", "Body", savedAuthor, Collections.emptySet());
+        Document document = new Document(null, "Title", "Body", savedAuthor.getId(), Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         mockMvc.perform(delete("/api/v1/documents/" + savedDocument.getId())
@@ -234,7 +234,7 @@ public class DocumentRestControllerTest {
         Author savedAuthor = authorRepository.save(author);
 
         Document document = new Document(null, "Test Title", "Test Body",
-                savedAuthor, Collections.emptySet());
+                savedAuthor.getId(), Collections.emptySet());
         Document savedDocument = documentRepository.save(document);
 
         DocumentDTO documentDTO = new DocumentDTO(savedDocument.getId(), "Updated Title", "Updated Body",

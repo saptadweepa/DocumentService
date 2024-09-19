@@ -58,14 +58,12 @@ public class DocumentRestController {
 
         Author author = authorOpt.get();
 
-        Set<Document> references = getDocumentsByIds(documentDTO.getReferenceIds());
-
         Document document = new Document();
         document.setId(null);
         document.setTitle(documentDTO.getTitle());
         document.setBody(documentDTO.getBody());
-        document.setAuthor(author);
-        document.setReferences(references);
+        document.setAuthorId(author.getId());
+        document.setReferenceIds(documentDTO.getReferenceIds());
 
         Document savedDocument = documentService.saveDocument(document);
         return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(savedDocument));
@@ -89,12 +87,10 @@ public class DocumentRestController {
             return ResponseEntity.badRequest().body(null);
         }
 
-        Set<Document> references = getDocumentsByIds(documentDTO.getReferenceIds());
-
         document.setTitle(documentDTO.getTitle());
         document.setBody(documentDTO.getBody());
-        document.setAuthor(author.get());
-        document.setReferences(references);
+        document.setAuthorId(author.get().getId());
+        document.setReferenceIds(documentDTO.getReferenceIds());
 
         Document updatedDocument = documentService.saveDocument(document);
         return ResponseEntity.ok(toDTO(updatedDocument));
@@ -114,16 +110,10 @@ public class DocumentRestController {
         dto.setId(document.getId());
         dto.setTitle(document.getTitle());
         dto.setBody(document.getBody());
-        dto.setAuthorId(document.getAuthor().getId());
-        dto.setReferenceIds(document.getReferences().stream().map(Document::getId).collect(Collectors.toSet()));
+        dto.setAuthorId(document.getAuthorId());
+        dto.setReferenceIds(document.getReferenceIds());
         return dto;
     }
 
-    private Set<Document> getDocumentsByIds(Set<Long> documentIds) {
-        return documentIds.stream()
-                .map(documentId -> documentService.findDocumentById(documentId).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
 }
 

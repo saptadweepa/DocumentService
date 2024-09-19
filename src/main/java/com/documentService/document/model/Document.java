@@ -1,12 +1,12 @@
 package com.documentService.document.model;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Type;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -24,16 +24,9 @@ public class Document {
     @Column(columnDefinition = "TEXT")
     private String body;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id")
-    private Author author;
+    private Long authorId;
 
-    @ManyToMany
-    @JoinTable(
-            name = "document_reference",
-            joinColumns = @JoinColumn(name = "document_id"),
-            inverseJoinColumns = @JoinColumn(name = "reference_id")
-    )
-    private Set<Document> references;
+    @Type(JsonType.class)
+    private Set<Long> referenceIds;
 
 }

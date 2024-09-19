@@ -1,9 +1,11 @@
 package com.documentService.document.model;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,20 +32,18 @@ public class Author implements UserDetails {
     private String username;
     private String password;
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Document> documents = new HashSet<>();
+    @Type(JsonType.class)
+    private Set<Long> documentIds = new HashSet<>();
 
     public void addDocument(Document document) {
         if (document == null) {
             throw new IllegalStateException("null document not allowed");
         }
-        this.documents.add(document);
-        document.setAuthor(this);
+        this.documentIds.add(document.getId());
     }
 
     public void removeDocument(Document document) {
-        this.documents.remove(document);
-        document.setAuthor(null);
+        this.documentIds.remove(document.getId());
     }
 
     private Role role;
